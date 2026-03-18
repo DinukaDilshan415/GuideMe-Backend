@@ -52,4 +52,26 @@ public class PartnerService {
             session.close();
         }
     }
+
+    public Response getCurrentPartnerData(String email){
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Partner partner = session.createQuery("FROM Partner p WHERE p.email=:email", Partner.class)
+                .setParameter("email", email)
+                .getSingleResultOrNull();
+
+        session.close();
+
+        PartnerDTO dto = new PartnerDTO();
+        dto.setEmail(partner.getEmail());
+        dto.setName(partner.getName());
+        dto.setMobile(partner.getMobile());
+        dto.setOtp(partner.getOtp());
+        dto.setImageUrl(partner.getImage_url());
+        dto.setCreatedAt(String.valueOf(partner.getCreated_at()));
+        dto.setUpdatedAt(String.valueOf(partner.getUpdated_at()));
+        dto.setStatusId(partner.getStatus().getId());
+        dto.setPartnerTypeId(partner.getPartner_types().getId());
+
+        return Response.ok(dto).build();
+    }
 }

@@ -17,8 +17,8 @@ public class PartnerDTO {
     private String email;
     private String mobile;
     private String otp;
-    private Date createdAt;
-    private Date updatedAt;
+    private String createdAt;
+    private String updatedAt;
     private String imageUrl;
     private int partnerTypeId;
     private int statusId;
