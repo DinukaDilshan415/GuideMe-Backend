@@ -13,5 +13,8 @@
         <property name="hibernate.show_sql">true</property>
 
         <mapping class="me.dinuka.guideme.entity.Facility"/>
+        <mapping class="me.dinuka.guideme.entity.Status"/>
+        <mapping class="me.dinuka.guideme.entity.PartnerTypes"/>
+        <mapping class="me.dinuka.guideme.entity.Partner"/>
     </session-factory>
 </hibernate-configuration>
