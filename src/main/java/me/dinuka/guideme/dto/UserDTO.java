@@ -20,5 +20,6 @@ public class UserDTO {
     private String createdAt;
     private String updatedAt;
     private String imageUrl;
+    private String country;
     private int statusId;
 }

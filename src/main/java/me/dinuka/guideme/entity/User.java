@@ -27,6 +27,9 @@ public class User {
     @Column(name = "image_url", nullable = false)
     private String image_url;
 
+    @Column(name = "country", length = 45, nullable = false)
+    private String country;
+
     @Column(name = "created_at", nullable = false)
     private Date created_at;
 
@@ -86,6 +89,14 @@ public class User {
 
     public void setImage_url(String image_url) {
         this.image_url = image_url;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public Date getCreated_at() {

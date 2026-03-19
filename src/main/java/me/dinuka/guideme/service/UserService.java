@@ -31,6 +31,7 @@ public class UserService {
             user.setMobile(dto.getMobile());
             user.setOtp(dto.getOtp());
             user.setImage_url(dto.getImageUrl());
+            user.setCountry(dto.getCountry());
 
             Date now = new Date();
             user.setCreated_at(now);
@@ -67,6 +68,7 @@ public class UserService {
         dto.setMobile(user.getMobile());
         dto.setOtp(user.getOtp());
         dto.setImageUrl(user.getImage_url());
+        dto.setCountry(user.getCountry());
         dto.setCreatedAt(String.valueOf(user.getCreated_at()));
         dto.setUpdatedAt(String.valueOf(user.getUpdated_at()));
         dto.setStatusId(user.getStatus().getId());
