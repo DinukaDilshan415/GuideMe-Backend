@@ -20,6 +20,7 @@ public class PartnerDTO {
     private String createdAt;
     private String updatedAt;
     private String imageUrl;
+    private String country;
     private int partnerTypeId;
     private int statusId;
 }
