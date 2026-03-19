@@ -52,4 +52,25 @@ public class UserService {
             session.close();
         }
     }
+
+    public Response getCurrentUserData(String email){
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        User user = session.createQuery("FROM User u WHERE u.email=:email", User.class)
+                .setParameter("email", email)
+                .getSingleResultOrNull();
+
+        session.close();
+
+        UserDTO dto = new UserDTO();
+        dto.setEmail(user.getEmail());
+        dto.setName(user.getName());
+        dto.setMobile(user.getMobile());
+        dto.setOtp(user.getOtp());
+        dto.setImageUrl(user.getImage_url());
+        dto.setCreatedAt(String.valueOf(user.getCreated_at()));
+        dto.setUpdatedAt(String.valueOf(user.getUpdated_at()));
+        dto.setStatusId(user.getStatus().getId());
+
+        return Response.ok(dto).build();
+    }
 }
