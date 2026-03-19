@@ -34,6 +34,14 @@ public class PartnerController {
     }
 
     @PUT
+    @Path("/updatenameandimage")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response partnerUpdateNameAndImage(PartnerDTO dto){
+        return new PartnerService().partnerUpdateNameAndImage(dto);
+    }
+
+    @PUT
     @Path("/updatecountry")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

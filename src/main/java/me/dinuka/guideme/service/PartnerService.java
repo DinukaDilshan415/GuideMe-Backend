@@ -137,6 +137,38 @@ public class PartnerService {
         }
     }
 
+    public Response partnerUpdateNameAndImage(PartnerDTO dto){
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        try {
+            if(dto.getName() != null && dto.getEmail() != null && dto.getImageUrl() != null){
+                Partner partner = session.createQuery("FROM Partner p WHERE p.email=:email", Partner.class)
+                        .setParameter("email", dto.getEmail())
+                        .getSingleResultOrNull();
+
+                partner.setName(dto.getName());
+                partner.setImage_url(dto.getImageUrl());
+                Date now = new Date();
+                partner.setUpdated_at(now);
+
+                session.merge(partner);
+
+                session.beginTransaction().commit();
+
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("message", "Partner Updated Successfully");
+                return Response.ok(map).build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            session.close();
+        }
+    }
+
     public Response partnerUpdateCountry(PartnerDTO dto){
         Session session = HibernateUtil.getSessionFactory().openSession();
 
