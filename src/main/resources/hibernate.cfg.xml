@@ -19,5 +19,6 @@
         <mapping class="me.dinuka.guideme.entity.User"/>
         <mapping class="me.dinuka.guideme.entity.PartnerAddress"/>
         <mapping class="me.dinuka.guideme.entity.UserAddress"/>
+        <mapping class="me.dinuka.guideme.entity.ListingType"/>
     </session-factory>
 </hibernate-configuration>
