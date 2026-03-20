@@ -20,5 +20,10 @@
         <mapping class="me.dinuka.guideme.entity.PartnerAddress"/>
         <mapping class="me.dinuka.guideme.entity.UserAddress"/>
         <mapping class="me.dinuka.guideme.entity.ListingType"/>
+        <mapping class="me.dinuka.guideme.entity.HotelListing"/>
+        <mapping class="me.dinuka.guideme.entity.HotelListingHasFacilities"/>
+        <mapping class="me.dinuka.guideme.entity.Listing"/>
+        <mapping class="me.dinuka.guideme.entity.ListingImages"/>
+        <mapping class="me.dinuka.guideme.entity.RoomTypes"/>
     </session-factory>
 </hibernate-configuration>
