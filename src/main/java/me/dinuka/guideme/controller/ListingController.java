@@ -1,13 +1,14 @@
 package me.dinuka.guideme.controller;
 
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import me.dinuka.guideme.dto.PartnerAddressDTO;
 import me.dinuka.guideme.service.FacilityService;
 import me.dinuka.guideme.service.ListingService;
+import me.dinuka.guideme.service.PartnerService;
+
+import java.util.HashMap;
 
 @Path("/listing")
 public class ListingController {
@@ -17,5 +18,13 @@ public class ListingController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllListingTypes(){
         return new ListingService().getAllListingTypes();
+    }
+
+    @POST
+    @Path("/addnewlisting")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addNewListing(HashMap<String, Object> hashMap){
+        return new ListingService().addNewListing(hashMap);
     }
 }
