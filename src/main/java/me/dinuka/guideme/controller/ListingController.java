@@ -20,6 +20,14 @@ public class ListingController {
         return new ListingService().getAllListingTypes();
     }
 
+    @GET
+    @Path("/{email}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getPartnerListings(@PathParam("email") String email){
+        return new ListingService().getPartnerListings(email);
+    }
+
     @POST
     @Path("/addnewlisting")
     @Consumes(MediaType.APPLICATION_JSON)
