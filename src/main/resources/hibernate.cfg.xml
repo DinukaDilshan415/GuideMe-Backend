@@ -25,5 +25,8 @@
         <mapping class="me.dinuka.guideme.entity.Listing"/>
         <mapping class="me.dinuka.guideme.entity.ListingImages"/>
         <mapping class="me.dinuka.guideme.entity.RoomTypes"/>
+        <mapping class="me.dinuka.guideme.entity.ThingsToDoListing"/>
+        <mapping class="me.dinuka.guideme.entity.ServiceListing"/>
+        <mapping class="me.dinuka.guideme.entity.Qualifications"/>
     </session-factory>
 </hibernate-configuration>
