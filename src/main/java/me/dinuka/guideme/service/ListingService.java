@@ -221,9 +221,6 @@ public class ListingService {
 
     public Response getPartnerListings(String email) {
         Session session = HibernateUtil.getSessionFactory().openSession();
-//        Partner partner = session.createQuery("FROM Partner p WHERE p.email=:email", Partner.class)
-//                .setParameter("email", email)
-//                .getSingleResultOrNull();
 
         List<Listing> listings = session.createQuery("FROM Listing l WHERE l.partner.email=:email ORDER BY l.created_at DESC", Listing.class)
                 .setParameter("email", email)

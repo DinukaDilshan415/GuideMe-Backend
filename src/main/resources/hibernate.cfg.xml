@@ -28,5 +28,6 @@
         <mapping class="me.dinuka.guideme.entity.ThingsToDoListing"/>
         <mapping class="me.dinuka.guideme.entity.ServiceListing"/>
         <mapping class="me.dinuka.guideme.entity.Qualifications"/>
+        <mapping class="me.dinuka.guideme.entity.Reviews"/>
     </session-factory>
 </hibernate-configuration>
