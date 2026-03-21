@@ -1,10 +1,13 @@
 package me.dinuka.guideme.service;
 
 import jakarta.ws.rs.core.Response;
+import me.dinuka.guideme.dto.PartnerDTO;
 import me.dinuka.guideme.entity.*;
 import me.dinuka.guideme.util.HibernateUtil;
 import org.hibernate.Session;
 
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -214,5 +217,50 @@ public class ListingService {
         } finally {
             session.close();
         }
+    }
+
+    public Response getPartnerListings(String email) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+//        Partner partner = session.createQuery("FROM Partner p WHERE p.email=:email", Partner.class)
+//                .setParameter("email", email)
+//                .getSingleResultOrNull();
+
+        List<Listing> listings = session.createQuery("FROM Listing l WHERE l.partner.email=:email ORDER BY l.created_at DESC", Listing.class)
+                .setParameter("email", email)
+                .getResultList();
+
+        if (listings.isEmpty()) {
+            return Response.status(Response.Status.NO_CONTENT).build();
+        }
+
+        List<HashMap<String, Object>> dto = new ArrayList<>();
+        for (Listing listing : listings) {
+            HashMap<String, Object> map = new HashMap<>();
+
+            List<ListingImages> listingImages = session.createQuery("FROM ListingImages li WHERE li.listing.id=:list_id ", ListingImages.class)
+                    .setParameter("list_id", listing.getId())
+                    .getResultList();
+
+            map.put("id", listing.getId());
+            map.put("list_id", listing.getList_id());
+            map.put("title", listing.getTitle());
+            map.put("description", listing.getDescription());
+            map.put("address", listing.getAddress());
+            map.put("price", listing.getPrice());
+            map.put("listing_type_id", listing.getListing_type().getId());
+            map.put("listing_type",listing.getListing_type().getType());
+            map.put("status_id", listing.getStatus().getId());
+            map.put("status", listing.getStatus().getType());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm a");
+            Date createdAt = listing.getCreated_at();
+            map.put("created_at", sdf.format(createdAt));
+            map.put("location_name", listing.getLocation_name());
+            map.put("image", listingImages.get(0).getUrl());
+            dto.add(map);
+        }
+
+        session.close();
+
+        return Response.ok(dto).build();
     }
 }
