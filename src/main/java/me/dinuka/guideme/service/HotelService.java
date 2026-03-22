@@ -1,11 +1,14 @@
 package me.dinuka.guideme.service;
 
 import jakarta.ws.rs.core.Response;
+import me.dinuka.guideme.dto.FacilityDTO;
 import me.dinuka.guideme.entity.*;
 import me.dinuka.guideme.util.HibernateUtil;
 import org.hibernate.Session;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,7 +28,7 @@ public class HotelService {
             HashMap<String, Object> map = new HashMap<>();
             map.put("id", hotel.getId());
             map.put("per_room_count", hotel.getPer_room_count());
-            map.put("rooma_count", hotel.getRooms_count());
+            map.put("room_count", hotel.getRooms_count());
             map.put("title", hotel.getListing().getTitle());
             map.put("description", hotel.getListing().getDescription());
             map.put("address", hotel.getListing().getAddress());
@@ -39,7 +42,11 @@ public class HotelService {
             map.put("partnerMobile", hotel.getListing().getPartner().getMobile());
             map.put("partnerImageUrl", hotel.getListing().getPartner().getImage_url());
             map.put("partnerCountry", hotel.getListing().getPartner().getCountry());
-            map.put("partnerCreated_at", hotel.getListing().getPartner().getCreated_at().toString());
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+            Date createdAt = hotel.getListing().getPartner().getCreated_at();
+
+            map.put("partnerCreated_at", sdf.format(createdAt));
 
             List<ListingImages> listingImages = session.createQuery("FROM ListingImages li WHERE li.listing.id=:list_id ", ListingImages.class)
                     .setParameter("list_id", hotel.getListing().getId())
@@ -68,9 +75,13 @@ public class HotelService {
                     .setParameter("list_id", hotel.getId())
                     .getResultList();
 
-            List<Facility> facilityList = new ArrayList<>();
+            List<FacilityDTO> facilityList = new ArrayList<>();
             for (HotelListingHasFacilities facility : facilities) {
-                facilityList.add(facility.getFacility());
+                FacilityDTO facilityDTO = new FacilityDTO();
+                facilityDTO.setId(facility.getFacility().getId());
+                facilityDTO.setType(facility.getFacility().getType());
+                facilityDTO.setIcon(facility.getFacility().getIcon());
+                facilityList.add(facilityDTO);
             }
             map.put("facilities", facilityList);
 
