@@ -10,6 +10,7 @@ import me.dinuka.guideme.entity.Status;
 import me.dinuka.guideme.util.HibernateUtil;
 import org.hibernate.Session;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -72,7 +73,11 @@ public class PartnerService {
         dto.setOtp(partner.getOtp());
         dto.setImageUrl(partner.getImage_url());
         dto.setCountry(partner.getCountry());
-        dto.setCreatedAt(String.valueOf(partner.getCreated_at()));
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+        Date createdAt = partner.getCreated_at();
+
+        dto.setCreatedAt(sdf.format(createdAt));
         dto.setUpdatedAt(String.valueOf(partner.getUpdated_at()));
         dto.setStatusId(partner.getStatus().getId());
         dto.setPartnerTypeId(partner.getPartner_types().getId());
