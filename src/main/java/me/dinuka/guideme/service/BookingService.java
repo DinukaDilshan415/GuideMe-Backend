@@ -126,37 +126,77 @@ public class BookingService {
     public Response getUserBookings(String email) {
         Session session = HibernateUtil.getSessionFactory().openSession();
 
-        List<Listing> listings = session.createQuery("FROM Listing l WHERE l.partner.email=:email ORDER BY l.created_at DESC", Listing.class)
+        List<Booking> bookings = session.createQuery("FROM Booking b WHERE b.user.email=:email ORDER BY b.created_at DESC", Booking.class)
                 .setParameter("email", email)
                 .getResultList();
 
-        if (listings.isEmpty()) {
+        if (bookings.isEmpty()) {
             return Response.status(Response.Status.NO_CONTENT).build();
         }
 
         List<HashMap<String, Object>> dto = new ArrayList<>();
-        for (Listing listing : listings) {
+        for (Booking booking : bookings) {
             HashMap<String, Object> map = new HashMap<>();
 
             List<ListingImages> listingImages = session.createQuery("FROM ListingImages li WHERE li.listing.id=:list_id ", ListingImages.class)
-                    .setParameter("list_id", listing.getId())
+                    .setParameter("list_id", booking.getListing().getId())
                     .getResultList();
 
-            map.put("id", listing.getId());
-            map.put("list_id", listing.getList_id());
-            map.put("title", listing.getTitle());
-            map.put("description", listing.getDescription());
-            map.put("address", listing.getAddress());
-            map.put("price", listing.getPrice());
-            map.put("listing_type_id", listing.getListing_type().getId());
-            map.put("listing_type",listing.getListing_type().getType());
-            map.put("status_id", listing.getStatus().getId());
-            map.put("status", listing.getStatus().getType());
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm a");
-            Date createdAt = listing.getCreated_at();
-            map.put("created_at", sdf.format(createdAt));
-            map.put("location_name", listing.getLocation_name());
-            map.put("image", listingImages.get(0).getUrl());
+            map.put("id", booking.getId());
+            map.put("booking_id", booking.getBooking_id());
+            map.put("title", booking.getTitle());
+            map.put("price", booking.getPrice());
+            map.put("booking_fee", booking.getBooking_fee());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+            Date date_in = booking.getDate_in();
+            map.put("date_in", sdf.format(date_in));
+            Date date_out = booking.getDate_out();
+            map.put("date_out", sdf.format(date_out));
+            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy/MM/dd HH:mm a");
+            Date createdAt = booking.getCreated_at();
+            map.put("created_at", sdf2.format(createdAt));
+            map.put("status_id", booking.getStatus().getId());
+            map.put("status", booking.getStatus().getType());
+            map.put("location_name", booking.getListing().getLocation_name());
+            map.put("imageUri", listingImages.get(0).getUrl());
+
+            BookingItemHotel itemHotel = session.createQuery("FROM BookingItemHotel bi WHERE bi.booking.id=:b_id", BookingItemHotel.class)
+                    .setParameter("b_id", booking.getId())
+                    .getSingleResultOrNull();
+
+            BookingItemThingsToDo itemThingsToDo = session.createQuery("FROM BookingItemThingsToDo bi WHERE bi.booking.id=:b_id", BookingItemThingsToDo.class)
+                    .setParameter("b_id", booking.getId())
+                    .getSingleResultOrNull();
+
+            BookingItemService itemService = session.createQuery("FROM BookingItemService bi WHERE bi.booking.id=:b_id", BookingItemService.class)
+                    .setParameter("b_id", booking.getId())
+                    .getSingleResultOrNull();
+
+            if (itemHotel != null){
+                map.put("categoryId", 1);
+                map.put("categoryName", "Hotels");
+                map.put("adultCount", itemHotel.getAdult_count());
+                map.put("childCount", itemHotel.getChildren_count());
+                map.put("roomCount", itemHotel.getRoom_count());
+                map.put("nights", itemHotel.getNight_count());
+                map.put("roomTypeId", itemHotel.getRoomTypes().getId());
+                map.put("roomType", itemHotel.getRoomTypes().getType());
+
+            } else if (itemThingsToDo != null) {
+                map.put("categoryId", 2);
+                map.put("categoryName", "Things To Do");
+                map.put("adultCount", itemThingsToDo.getGuest_count());
+                map.put("childCount", 0);
+
+            } else if (itemService != null) {
+                map.put("categoryId", 3);
+                map.put("categoryName", "Services");
+                map.put("adultCount", itemService.getGuest_count());
+                map.put("childCount", 0);
+
+            } else {
+                return Response.status(Response.Status.NO_CONTENT).build();
+            }
             dto.add(map);
         }
 
