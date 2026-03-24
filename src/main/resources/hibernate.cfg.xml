@@ -29,5 +29,9 @@
         <mapping class="me.dinuka.guideme.entity.ServiceListing"/>
         <mapping class="me.dinuka.guideme.entity.Qualifications"/>
         <mapping class="me.dinuka.guideme.entity.Reviews"/>
+        <mapping class="me.dinuka.guideme.entity.Booking"/>
+        <mapping class="me.dinuka.guideme.entity.BookingItemHotel"/>
+        <mapping class="me.dinuka.guideme.entity.BookingItemService"/>
+        <mapping class="me.dinuka.guideme.entity.BookingItemThingsToDo"/>
     </session-factory>
 </hibernate-configuration>

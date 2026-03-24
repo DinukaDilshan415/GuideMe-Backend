@@ -19,4 +19,12 @@ public class HotelController {
         return new HotelService().getMainHotels(key);
     }
 
+    @POST
+    @Path("/checkavailability")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response checkAvailability(HashMap<String, Object> hashMap){
+        return new HotelService().checkAvailability(hashMap);
+    }
+
 }

@@ -112,4 +112,71 @@ public class HotelService {
         }
         return Response.status(Response.Status.NO_CONTENT).build();
     }
+
+    public Response checkAvailability(HashMap<String, Object> hashMap) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        HashMap<String, Object> map = new HashMap<>();
+        try {
+            int id = Integer.parseInt(hashMap.get("hotel_id").toString());
+            int room_count = Integer.parseInt(hashMap.get("room_count").toString());
+            String date_in_str = hashMap.get("date_in").toString();
+            String date_out_str = hashMap.get("date_out").toString();
+
+            System.out.println("Room Count: " + room_count);
+
+            final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+            // Convert String dates to java.util.Date objects
+            Date date_in = DATE_FORMAT.parse(date_in_str);
+            Date date_out = DATE_FORMAT.parse(date_out_str);
+
+
+            HotelListing hotelListing = session.createQuery("FROM HotelListing hl WHERE hl.id=:id", HotelListing.class)
+                    .setParameter("id", id)
+                    .getSingleResultOrNull();
+
+            List<Booking> bookings = session.createQuery("FROM Booking b WHERE b.listing.id=:l_id AND b.date_in < :end AND b.date_out > :start", Booking.class)
+                    .setParameter("l_id", hotelListing.getListing().getId())
+                    .setParameter("start", date_in)
+                    .setParameter("end", date_out)
+                    .getResultList();
+
+            if (!bookings.isEmpty()) {
+                int count = 0;
+                for (Booking booking : bookings) {
+                    BookingItemHotel itemBooking = session.createQuery("FROM BookingItemHotel bh WHERE bh.booking.id=:id", BookingItemHotel.class)
+                            .setParameter("id", booking.getId())
+                            .getSingleResultOrNull();
+                    count += itemBooking.getRoom_count();
+                }
+                int avilabaleRooms = hotelListing.getRooms_count() - count;
+                System.out.println("Avilabale Rooms: " + avilabaleRooms);
+                if (avilabaleRooms < room_count) {
+                    map.put("success", false);
+                    map.put("message", "Only " + avilabaleRooms + " rooms available");
+                    return Response.ok(map).build();
+                } else {
+                    map.put("success", true);
+                    map.put("message", "Available for booking");
+                    return Response.ok(map).build();
+                }
+            } else {
+                if (hotelListing.getRooms_count() < room_count) {
+                    map.put("success", false);
+                    map.put("message", "Only " + hotelListing.getRooms_count() + " rooms available");
+                    return Response.ok(map).build();
+                } else {
+                    map.put("success", true);
+                    map.put("message", "Available for booking");
+                    return Response.ok(map).build();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            session.close();
+        }
+    }
+
 }
