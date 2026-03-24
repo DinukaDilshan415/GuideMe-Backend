@@ -87,4 +87,59 @@ public class ThingsToDoService {
         }
         return Response.status(Response.Status.NO_CONTENT).build();
     }
+
+    public Response checkAvailability(HashMap<String, Object> hashMap) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        HashMap<String, Object> map = new HashMap<>();
+
+        try {
+            int id = Integer.parseInt(hashMap.get("thingstodo_id").toString());
+            int guest_count = Integer.parseInt(hashMap.get("guest_count").toString());
+            String date_in_str = hashMap.get("date_in").toString();
+            String date_out_str = hashMap.get("date_out").toString();
+
+            System.out.println("guest_count: " + guest_count);
+
+            final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+
+            // Convert String dates to java.util.Date objects
+            Date date_in = DATE_FORMAT.parse(date_in_str);
+            Date date_out = DATE_FORMAT.parse(date_out_str);
+
+            ThingsToDoListing thingsToDoListing = session.createQuery("FROM ThingsToDoListing tdl WHERE tdl.id=:id", ThingsToDoListing.class)
+                    .setParameter("id", id)
+                    .getSingleResultOrNull();
+
+            List<Booking> bookings = session.createQuery("FROM Booking b WHERE b.listing.id=:l_id AND b.date_in=:start", Booking.class)
+                    .setParameter("l_id", thingsToDoListing.getListing().getId())
+                    .setParameter("start", date_in)
+                    .getResultList();
+
+            if (!bookings.isEmpty()) {
+                int filledSlots = bookings.size();
+                int availableSlots = thingsToDoListing.getPer_day_bookings() - filledSlots;
+
+                System.out.println("Available Slots: " + availableSlots);
+
+                if (availableSlots < 1) {
+                    map.put("success", false);
+                    map.put("message", "This date is already booked. Please choose another date.");
+                    return Response.ok(map).build();
+                } else {
+                    map.put("success", true);
+                    map.put("message", "Available for booking");
+                    return Response.ok(map).build();
+                }
+            } else {
+                    map.put("success", true);
+                    map.put("message", "Available for booking");
+                    return Response.ok(map).build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            session.close();
+        }
+    }
 }

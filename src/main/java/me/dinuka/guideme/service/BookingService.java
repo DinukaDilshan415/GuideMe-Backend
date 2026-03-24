@@ -30,13 +30,47 @@ public class BookingService {
         Session session = HibernateUtil.getSessionFactory().openSession();
 
         try {
-            int hotelId = ((Number) hashMap.get("hotel_id")).intValue();
+            int categoryId = ((Number) hashMap.get("categoryId")).intValue();
+
+            int itemId = 0;
+            Listing listing = null;
+            if (categoryId == 1){
+                itemId = ((Number) hashMap.get("hotel_id")).intValue();
+
+                HotelListing hotelListing = session.createQuery("FROM HotelListing hl WHERE hl.id=:id", HotelListing.class)
+                        .setParameter("id", itemId)
+                        .getSingleResultOrNull();
+
+                listing = session.createQuery("FROM Listing l WHERE l.id=:id", Listing.class)
+                        .setParameter("id", hotelListing.getListing().getId())
+                        .getSingleResultOrNull();
+            } else if (categoryId == 2){
+                itemId = ((Number) hashMap.get("thingstodo_id")).intValue();
+
+                ThingsToDoListing thingsToDoListing = session.createQuery("FROM ThingsToDoListing tdl WHERE tdl.id=:id", ThingsToDoListing.class)
+                        .setParameter("id", itemId)
+                        .getSingleResultOrNull();
+
+                listing = session.createQuery("FROM Listing l WHERE l.id=:id", Listing.class)
+                        .setParameter("id", thingsToDoListing.getListing().getId())
+                        .getSingleResultOrNull();
+            } else if (categoryId == 3){
+                itemId = ((Number) hashMap.get("service_id")).intValue();
+
+                ServiceListing serviceListing = session.createQuery("FROM ServiceListing sl WHERE sl.id=:id", ServiceListing.class)
+                        .setParameter("id", itemId)
+                        .getSingleResultOrNull();
+
+                listing = session.createQuery("FROM Listing l WHERE l.id=:id", Listing.class)
+                        .setParameter("id", serviceListing.getListing().getId())
+                        .getSingleResultOrNull();
+            }
+
             String email = hashMap.get("email").toString();
             String title = hashMap.get("title").toString();
             double price = Double.parseDouble(hashMap.get("price").toString());
             double booking_fee = Double.parseDouble(hashMap.get("booking_fee").toString());
 
-            int categoryId = ((Number) hashMap.get("categoryId")).intValue();
             String date_in = hashMap.get("date_in").toString();
             String date_out = hashMap.get("date_out").toString();
 
@@ -49,14 +83,6 @@ public class BookingService {
                     .getSingleResultOrNull();
 
             Status status = session.get(Status.class, 3);
-
-            HotelListing hotelListing = session.createQuery("FROM HotelListing hl WHERE hl.id=:id", HotelListing.class)
-                    .setParameter("id", hotelId)
-                    .getSingleResultOrNull();
-
-            Listing listing = session.createQuery("FROM Listing l WHERE l.id=:id", Listing.class)
-                    .setParameter("id", hotelListing.getListing().getId())
-                    .getSingleResultOrNull();
 
             List<Booking> bookings = session.createQuery("FROM Booking b ORDER BY b.id DESC", Booking.class)
                     .getResultList();
@@ -104,10 +130,22 @@ public class BookingService {
                 session.persist(bookingItemHotel);
 
             } else if (categoryId == 2){ //things to do
+                int guest_count = Integer.parseInt(hashMap.get("guest_count").toString());
 
+                BookingItemThingsToDo bookingItemThingsToDo = new BookingItemThingsToDo();
+                bookingItemThingsToDo.setBooking(booking);
+                bookingItemThingsToDo.setGuest_count(guest_count);
+
+                session.persist(bookingItemThingsToDo);
 
             } else if (categoryId == 3){ //services
+                int guest_count = Integer.parseInt(hashMap.get("guest_count").toString());
 
+                BookingItemService bookingItemService = new BookingItemService();
+                bookingItemService.setBooking(booking);
+                bookingItemService.setGuest_count(guest_count);
+
+                session.persist(bookingItemService);
             }
 
             session.beginTransaction().commit();
