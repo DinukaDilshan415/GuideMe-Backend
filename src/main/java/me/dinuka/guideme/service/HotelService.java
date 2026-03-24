@@ -124,7 +124,7 @@ public class HotelService {
 
             System.out.println("Room Count: " + room_count);
 
-            final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
             // Convert String dates to java.util.Date objects
             Date date_in = DATE_FORMAT.parse(date_in_str);
