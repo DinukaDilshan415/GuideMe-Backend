@@ -27,6 +27,8 @@ public class HotelService {
         for (HotelListing hotel : hotelListings) {
             HashMap<String, Object> map = new HashMap<>();
             map.put("id", hotel.getId());
+            map.put("l_id", hotel.getListing().getId());
+            map.put("categoryId", 1);
             map.put("per_room_count", hotel.getPer_room_count());
             map.put("room_count", hotel.getRooms_count());
             map.put("title", hotel.getListing().getTitle());
