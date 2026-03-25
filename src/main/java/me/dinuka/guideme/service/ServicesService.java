@@ -26,6 +26,8 @@ public class ServicesService {
         for (ServiceListing serviceListing : serviceListings) {
             HashMap<String, Object> map = new HashMap<>();
             map.put("id", serviceListing.getId());
+            map.put("l_id", serviceListing.getListing().getId());
+            map.put("categoryId", 3);
             map.put("per_day_bookings", serviceListing.getPer_day_bookings());
             map.put("title", serviceListing.getListing().getTitle());
             map.put("description", serviceListing.getListing().getDescription());

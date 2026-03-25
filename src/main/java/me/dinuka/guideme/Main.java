@@ -30,8 +30,6 @@ public class Main {
 
             if (webappDir.exists()) {
                 Context context = tomcat.addWebapp("/guide_me", webappDir.getAbsolutePath());
-//                Tomcat.addServlet(context, "RestApp", new ServletContainer(new AppConfig()));
-//                context.addServletMappingDecoded("/api/*", "RestApp");
             } else {
                 System.err.println("ERROR: Webapp directory not found!");
                 return;

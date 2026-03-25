@@ -27,6 +27,8 @@ public class ThingsToDoService {
         for (ThingsToDoListing ttd : thingsToDoListings) {
             HashMap<String, Object> map = new HashMap<>();
             map.put("id", ttd.getId());
+            map.put("l_id", ttd.getListing().getId());
+            map.put("categoryId", 2);
             map.put("per_day_bookings", ttd.getPer_day_bookings());
             map.put("guest_requirements", ttd.getGuest_requerements());
             map.put("activity_level", ttd.getActivity_level());
