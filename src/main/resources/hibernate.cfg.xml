@@ -33,5 +33,6 @@
         <mapping class="me.dinuka.guideme.entity.BookingItemHotel"/>
         <mapping class="me.dinuka.guideme.entity.BookingItemService"/>
         <mapping class="me.dinuka.guideme.entity.BookingItemThingsToDo"/>
+        <mapping class="me.dinuka.guideme.entity.PartnerPlanUpgrade"/>
     </session-factory>
 </hibernate-configuration>

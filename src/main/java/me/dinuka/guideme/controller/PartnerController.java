@@ -18,6 +18,22 @@ public class PartnerController {
     }
 
     @POST
+    @Path("/upgradeplan")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response partnerUpgradePlan(PartnerDTO dto){
+        return new PartnerService().partnerUpgradePlan(dto);
+    }
+
+    @POST
+    @Path("/cancelplan")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response partnerCancelPlan(PartnerDTO dto){
+        return new PartnerService().partnerCancelPlan(dto);
+    }
+
+    @POST
     @Path("/saveorupdateaddress")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -63,6 +79,14 @@ public class PartnerController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCurrentPartnerAddressData(@PathParam("email") String email){
         return new PartnerService().getCurrentPartnerAddressData(email);
+    }
+
+    @GET
+    @Path("/checkpartnership/{email}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response checkPartnership(@PathParam("email") String email){
+        return new PartnerService().checkPartnership(email);
     }
 
 }
