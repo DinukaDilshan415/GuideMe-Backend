@@ -10,13 +10,6 @@ import java.util.HashMap;
 
 @Path("/booking")
 public class BookingController {
-//    @GET
-//    @Path("/types/getall")
-//    @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Response getAllListingTypes(){
-//        return new ListingService().getAllListingTypes();
-//    }
 
     @GET
     @Path("/{email}")
@@ -24,6 +17,14 @@ public class BookingController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUserBookings(@PathParam("email") String email){
         return new BookingService().getUserBookings(email);
+    }
+
+    @GET
+    @Path("/listingitem/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getItemReserves(@PathParam("id") int id){
+        return new BookingService().getItemReserves(id);
     }
 
     @POST

@@ -242,4 +242,89 @@ public class BookingService {
 
         return Response.ok(dto).build();
     }
+
+    public Response getItemReserves(int id) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        try {
+            List<Booking> bookings = session.createQuery("FROM Booking b WHERE b.listing.id=:id ORDER BY b.created_at DESC", Booking.class)
+                    .setParameter("id", id)
+                    .getResultList();
+
+            if (bookings.isEmpty()) {
+                return Response.status(Response.Status.NO_CONTENT).build();
+            }
+
+            List<HashMap<String, Object>> dto = new ArrayList<>();
+            for (Booking booking : bookings) {
+                HashMap<String, Object> map = new HashMap<>();
+
+                int categoryId = booking.getListing().getListing_type().getId();
+
+                map.put("id", booking.getId());
+                map.put("booking_id", booking.getBooking_id());
+                map.put("title", booking.getTitle());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+                Date date_in = booking.getDate_in();
+                map.put("date_in", sdf.format(date_in));
+                Date date_out = booking.getDate_out();
+                map.put("date_out", sdf.format(date_out));
+                SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy/MM/dd HH:mm a");
+                Date createdAt = booking.getCreated_at();
+                map.put("created_at", sdf2.format(createdAt));
+                map.put("status_id", booking.getStatus().getId());
+                map.put("status", booking.getStatus().getType());
+                map.put("user_id", booking.getUser().getId());
+                map.put("user_name", booking.getUser().getName());
+                map.put("user_email", booking.getUser().getEmail());
+                map.put("user_mobile", booking.getUser().getMobile());
+                map.put("user_country", booking.getUser().getCountry());
+
+                if (categoryId == 1){
+                    map.put("categoryId", 1);
+
+                    BookingItemHotel itemHotel = session.createQuery("FROM BookingItemHotel bi WHERE bi.booking.id=:b_id", BookingItemHotel.class)
+                            .setParameter("b_id", booking.getId())
+                            .getSingleResultOrNull();
+
+                    map.put("adult_count", itemHotel.getAdult_count());
+                    map.put("child_count", itemHotel.getChildren_count());
+                    map.put("room_count", itemHotel.getRoom_count());
+                    map.put("night_count", itemHotel.getNight_count());
+
+                } else if (categoryId == 2){
+                    map.put("categoryId", 2);
+
+                    BookingItemThingsToDo itemThingsToDo = session.createQuery("FROM BookingItemThingsToDo bi WHERE bi.booking.id=:b_id", BookingItemThingsToDo.class)
+                            .setParameter("b_id", booking.getId())
+                            .getSingleResultOrNull();
+
+                    map.put("adult_count", itemThingsToDo.getGuest_count());
+                    map.put("child_count", 0);
+                    map.put("room_count", 0);
+
+                } else if (categoryId == 3){
+                    map.put("categoryId", 3);
+
+                    BookingItemService itemService = session.createQuery("FROM BookingItemService bi WHERE bi.booking.id=:b_id", BookingItemService.class)
+                            .setParameter("b_id", booking.getId())
+                            .getSingleResultOrNull();
+
+                    map.put("adult_count", itemService.getGuest_count());
+                    map.put("child_count", 0);
+                    map.put("room_count", 0);
+                }
+
+                dto.add(map);
+            }
+
+            session.close();
+            return Response.ok(dto).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            session.close();
+        }
+    }
 }
