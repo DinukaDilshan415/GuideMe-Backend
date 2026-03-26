@@ -3,10 +3,7 @@ package me.dinuka.guideme.service;
 import jakarta.ws.rs.core.Response;
 import me.dinuka.guideme.dto.PartnerAddressDTO;
 import me.dinuka.guideme.dto.PartnerDTO;
-import me.dinuka.guideme.entity.Partner;
-import me.dinuka.guideme.entity.PartnerAddress;
-import me.dinuka.guideme.entity.PartnerTypes;
-import me.dinuka.guideme.entity.Status;
+import me.dinuka.guideme.entity.*;
 import me.dinuka.guideme.util.HibernateUtil;
 import org.hibernate.Session;
 
@@ -242,6 +239,151 @@ public class PartnerService {
             session.beginTransaction().commit();
 
             return Response.ok(map).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            session.close();
+        }
+    }
+
+    public Response partnerUpgradePlan(PartnerDTO dto) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        try {
+            if(dto.getEmail() != null){
+                Partner partner = session.createQuery("FROM Partner p WHERE p.email=:email", Partner.class)
+                        .setParameter("email", dto.getEmail())
+                        .getSingleResultOrNull();
+
+                PartnerTypes partnerType = session.get(PartnerTypes.class, 2);
+
+                partner.setPartner_types(partnerType);
+                Date now = new Date();
+                partner.setUpdated_at(now);
+
+                session.merge(partner);
+
+                PartnerPlanUpgrade partnerPlanUpgrade = new PartnerPlanUpgrade();
+                partnerPlanUpgrade.setPartner(partner);
+                partnerPlanUpgrade.setUpgrade_date(now);
+
+                session.persist(partnerPlanUpgrade);
+
+                List<Listing> listings = session.createQuery("FROM Listing l WHERE l.partner.email=:email ORDER BY l.created_at ASC", Listing.class)
+                        .setParameter("email", dto.getEmail())
+                        .getResultList();
+
+                Status NewStatus = session.get(Status.class, 1);
+
+                if (!listings.isEmpty()){
+                    for (Listing listing : listings) {
+                        listing.setStatus(NewStatus);
+                        session.merge(listing);
+                    }
+                }
+
+                session.beginTransaction().commit();
+
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("message", "Plan Upgraded Successfully");
+                return Response.ok(map).build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            session.close();
+        }
+    }
+
+    public Response partnerCancelPlan(PartnerDTO dto) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        try {
+            if(dto.getEmail() != null){
+                Partner partner = session.createQuery("FROM Partner p WHERE p.email=:email", Partner.class)
+                        .setParameter("email", dto.getEmail())
+                        .getSingleResultOrNull();
+
+                PartnerTypes partnerType = session.get(PartnerTypes.class, 1);
+
+                partner.setPartner_types(partnerType);
+                Date now = new Date();
+                partner.setUpdated_at(now);
+
+                session.merge(partner);
+
+                PartnerPlanUpgrade planUpgrade = session.createQuery("FROM PartnerPlanUpgrade ppu WHERE ppu.partner.id=:id", PartnerPlanUpgrade.class)
+                        .setParameter("id", partner.getId())
+                        .getSingleResultOrNull();
+
+                if (planUpgrade != null) {
+                    session.remove(planUpgrade);
+                }
+
+                List<Listing> listings = session.createQuery("FROM Listing l WHERE l.partner.email=:email ORDER BY l.created_at ASC", Listing.class)
+                        .setParameter("email", dto.getEmail())
+                        .getResultList();
+
+                Status NewStatus = session.get(Status.class, 2);
+
+                if (!listings.isEmpty()){
+                    for (int i = 1; i < listings.size(); i++) {
+                        Listing listing = listings.get(i);
+                        listing.setStatus(NewStatus);
+                        session.merge(listing);
+                    }
+                }
+
+                session.beginTransaction().commit();
+
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("message", "Plan Cancelled Successfully");
+                return Response.ok(map).build();
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            session.close();
+        }
+    }
+
+    public Response checkPartnership(String email) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        try {
+            if(email != null){
+                Partner partner = session.createQuery("FROM Partner p WHERE p.email=:email", Partner.class)
+                        .setParameter("email", email)
+                        .getSingleResultOrNull();
+
+                List<Listing> listings = session.createQuery("FROM Listing l WHERE l.partner.email=:email ORDER BY l.created_at ASC", Listing.class)
+                        .setParameter("email", email)
+                        .getResultList();
+
+                if (listings.isEmpty()){
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("message", "Partnership checked Successfully");
+                    return Response.ok(map).build();
+                } else {
+                    if (partner.getPartner_types().getId() == 1){
+                        return Response.status(Response.Status.NO_CONTENT).build();
+                    } else {
+                        HashMap<String, Object> map = new HashMap<>();
+                        map.put("message", "Partnership checked Successfully");
+                        return Response.ok(map).build();
+                    }
+                }
+
+            } else {
+                return Response.status(Response.Status.BAD_REQUEST).build();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
