@@ -101,7 +101,7 @@ public class HotelService {
                     rating += review.getRating();
                     reviewCount++;
                 }
-                map.put("rating", rating / reviewCount);
+                map.put("rating", Math.round((rating / reviewCount) * 10.0) / 10.0);
                 map.put("reviewCount", reviewCount);
             }
 
