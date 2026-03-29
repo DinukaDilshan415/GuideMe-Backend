@@ -2,10 +2,12 @@ package me.dinuka.guideme.service;
 
 import jakarta.ws.rs.core.Response;
 import me.dinuka.guideme.dto.PartnerDTO;
+import me.dinuka.guideme.dto.ReviewDTO;
 import me.dinuka.guideme.entity.*;
 import me.dinuka.guideme.util.HibernateUtil;
 import org.hibernate.Session;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -259,5 +261,84 @@ public class ListingService {
         session.close();
 
         return Response.ok(dto).build();
+    }
+
+    public Response addReview(ReviewDTO reviewDTO) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        try{
+            User user = session.createQuery("FROM User u WHERE u.email=:email", User.class)
+                    .setParameter("email", reviewDTO.getUserEmail())
+                    .getSingleResultOrNull();
+
+            Booking booking = session.createQuery("FROM Booking b WHERE b.id=:id", Booking.class)
+                    .setParameter("id", reviewDTO.getBookingId())
+                    .getSingleResultOrNull();
+
+            Listing listing = booking.getListing();
+
+            Reviews review = new Reviews();
+            review.setRating(reviewDTO.getRating());
+            review.setReview_text(reviewDTO.getReview());
+            review.setUser(user);
+            review.setListing(listing);
+
+            Date now = new Date();
+            review.setCreated_at(now);
+
+            session.persist(review);
+
+            session.beginTransaction().commit();
+
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("message", "Review Added Successfully");
+            return Response.ok(map).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            session.close();
+        }
+    }
+
+    public Response getListingReviews(int lId) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+
+        System.out.println("Listing ID: " + lId + " ");
+
+        try {
+            List<Reviews> reviews = session.createQuery("FROM Reviews r WHERE r.listing.id=:id ORDER BY r.created_at DESC", Reviews.class)
+                    .setParameter("id", lId)
+                    .getResultList();
+
+            if (reviews.isEmpty()) {
+                return Response.status(Response.Status.NO_CONTENT).build();
+            } else {
+                List<ReviewDTO> reviewDTOS = new ArrayList<>();
+
+                for (Reviews review : reviews) {
+                    ReviewDTO reviewDTO = new ReviewDTO();
+                    reviewDTO.setId(review.getId());
+                    reviewDTO.setRating(review.getRating());
+                    reviewDTO.setReview(review.getReview_text());
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+                    reviewDTO.setCreatedAt(dateFormat.format(review.getCreated_at()));
+                    reviewDTO.setUserName(review.getUser().getName());
+                    reviewDTO.setUserEmail(review.getUser().getEmail());
+                    reviewDTO.setUserCountry(review.getUser().getCountry());
+                    reviewDTO.setUserImageUrl(review.getUser().getImage_url());
+
+                    reviewDTOS.add(reviewDTO);
+                }
+
+                return Response.ok(reviewDTOS).build();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        } finally {
+            session.close();
+        }
     }
 }
