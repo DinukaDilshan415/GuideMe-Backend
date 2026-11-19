@@ -230,12 +230,6 @@ Base URL: `http://<host>:8080/guide_me`. Requests and responses are JSON.
 | GET | `/booking/listingitem/{id}` | Bookings for a listing item (for partners) |
 | POST | `/booking/addnewbooking` | Create a booking |
 
-### Other
-| Method | Path | Description |
-|---|---|---|
-| GET | `/facility/getall` | All hotel facilities |
-| GET | `/test` | Health check |
-
 ---
 
 ## Related
